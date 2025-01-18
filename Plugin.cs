@@ -1,4 +1,5 @@
 using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 
@@ -7,19 +8,27 @@ namespace NoPenaltyOnGordion;
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
-    private new static ManualLogSource Logger { get; set; } = null!;
-    private static Harmony? Harmony { get; set; }
+    internal new static ManualLogSource Logger { get; private set; } = null!;
+    internal static Harmony? Harmony { get; set; }
+    public static ConfigEntry<string> PenaltyText { get; private set; } = null!;
 
     private void Awake()
     {
         Logger = base.Logger;
+ 
+        PenaltyText = Config.Bind(
+            "General",
+            "PenaltyText",
+            "(No penalty from deaths on the Company moon)", 
+            "Text displayed in the penalty HUD"
+        );
         
         Patch();
 
         Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
     }
 
-    private static void Patch()
+    internal static void Patch()
     {
         Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
 
